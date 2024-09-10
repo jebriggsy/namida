@@ -103,6 +103,13 @@ pub struct Parameter {
     #[arg(long = "local")]
     pub local_filename: Option<PathBuf>,
 
+    /// Try to recreate the requested directory tree on the client.
+    ///
+    /// If requesting one or more files located within nested subdirectories, the client will
+    /// attempt to create the same directory tree locally.
+    #[arg(long = "tree", action = clap::ArgAction::SetTrue)]
+    pub tree: bool,
+
     /// Do not resume an existing transfer.
     ///
     /// By default, namida will try to resume an existing transfer, skipping the transfer of blocks
@@ -243,7 +250,8 @@ pub fn run(mut parameter: Parameter) -> anyhow::Result<()> {
 
     'outer: for remote_filename in file_names {
         // Get a suitable local filename for the remote one
-        let local_filename = create_local_filename(&remote_filename, &parameter.local_filename);
+        let local_filename =
+            create_local_filename(&remote_filename, &parameter.local_filename, parameter.tree)?;
 
         // negotiate the file request with the server
         let (remote_udp_port, resume) = super::protocol::open_transfer(
@@ -742,17 +750,33 @@ pub fn run(mut parameter: Parameter) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_local_filename(remote_filename: &Path, local_filename: &Option<PathBuf>) -> PathBuf {
+fn create_local_filename(
+    remote_filename: &Path,
+    local_filename: &Option<PathBuf>,
+    tree: bool,
+) -> anyhow::Result<PathBuf> {
     if let Some(local_filename) = local_filename.as_ref() {
         // Local filename was specified
-        PathBuf::from(local_filename)
+        Ok(PathBuf::from(local_filename))
     } else if let Some(file_name_part) = remote_filename.file_name() {
-        // Remote filename contains slash, use only the last part as the local filename
-        PathBuf::from(file_name_part)
+        // Remote filename contains slash
+        if tree {
+            let parent = remote_filename
+                .parent()
+                .expect("remote filename should have parent");
+            if !parent.exists() {
+                println!("[--tree] creating directories: {}", parent.display());
+                std::fs::create_dir_all(parent)?;
+            }
+            Ok(remote_filename.to_path_buf())
+        } else {
+            // use only the last part as the local filename
+            Ok(PathBuf::from(file_name_part))
+        }
     } else {
         // Remote filename does not contain slash, use it as the local filename in its
         // entirety
-        remote_filename.to_path_buf()
+        Ok(remote_filename.to_path_buf())
     }
 }
 
