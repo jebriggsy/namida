@@ -48,7 +48,7 @@ pub fn load_secret(path: &Option<PathBuf>, dest: &mut [u8; 32]) {
 }
 
 fn load_secret_internal(path: &Path, dest: &mut [u8; 32]) -> anyhow::Result<()> {
-    let mut file = std::fs::File::open(path)?;
+    let mut file = File::open(path)?;
     file.read_exact(dest)?;
     Ok(())
 }

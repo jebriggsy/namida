@@ -274,7 +274,7 @@ pub fn run(mut parameter: Parameter) -> anyhow::Result<()> {
         let ring_buffer_ref = session
             .transfer
             .ring_buffer
-            .insert(Arc::new(super::ring::Buffer::create()));
+            .insert(Arc::new(ring::Buffer::create()));
         let ring_buffer = Arc::clone(ring_buffer_ref);
 
         // allocate the faster local buffer
@@ -361,7 +361,7 @@ pub fn run(mut parameter: Parameter) -> anyhow::Result<()> {
             }
 
             let local_datagram_view: datagram::View = if parameter.encrypted {
-                const U64_SIZE: usize = std::mem::size_of::<u64>();
+                const U64_SIZE: usize = size_of::<u64>();
                 let (nonce, _) = bincode::decode_from_slice(
                     &encrypted_buffer[..U64_SIZE],
                     crate::common::BINCODE_CONFIG,
@@ -760,7 +760,7 @@ fn create_local_filename(remote_filename: &Path, local_filename: &Option<PathBuf
 /// thread sends it a datagram with a block number of 0.
 #[allow(clippy::needless_pass_by_value)]
 fn disk_thread(
-    ring_buffer: Arc<super::ring::Buffer>,
+    ring_buffer: Arc<ring::Buffer>,
     block_count: BlockIndex,
     file_size: FileSize,
     mut file: std::fs::File,
@@ -810,6 +810,7 @@ pub fn dump_blockmap(postfix: &str, xfer: &Transfer) -> anyhow::Result<()> {
     let mut fbits = std::fs::File::options()
         .write(true)
         .create(true)
+        .truncate(true)
         .open(fname)?;
     fbits.write_all(&xfer.block_count.0.to_le_bytes())?;
     let block_data = &xfer.received.inner[0..((xfer.block_count.0 / 8).wrapping_add(1) as usize)];

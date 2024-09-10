@@ -118,6 +118,7 @@ pub fn open(session: &mut Session, parameter: &Parameter) -> anyhow::Result<()> 
         std::fs::File::options()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(Path::new(&transcript_filename))?,
     );
 

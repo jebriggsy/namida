@@ -85,13 +85,11 @@
 #![warn(macro_use_extern_crate)]
 #![warn(meta_variable_misuse)]
 #![warn(missing_abi)]
-#![warn(pointer_structural_match)]
 #![warn(unsafe_op_in_unsafe_fn)]
 #![warn(unused_crate_dependencies)]
 #![warn(unused_extern_crates)]
 #![warn(unused_import_braces)]
 #![warn(unused_qualifications)]
-#![warn(unused_tuple_struct_fields)]
 #![allow(clippy::doc_markdown)]
 #![allow(clippy::enum_glob_use)]
 #![allow(clippy::too_many_lines)] // warn later with cognitive_complexity

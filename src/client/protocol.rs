@@ -256,6 +256,7 @@ pub fn open_transfer(
             .read(true)
             .write(true)
             .create(true)
+            .truncate(false)
             .open(local_path)?,
     );
     file.set_len(session.transfer.file_size.0)?;
