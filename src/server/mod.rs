@@ -50,8 +50,12 @@ pub struct Parameter {
     #[arg(long = "hbtimeout", default_value_t = config::DEFAULT_HEARTBEAT_TIMEOUT)]
     pub hb_timeout: u16,
 
-    /// specifies the file from which the pre-shared key will be read. If not specified, a
-    /// hardcoded key will be used (not recommended)
+    /// Specifies the path to a file from which the pre-shared key will be loaded.
+    ///
+    /// The pre-shared key should be 32 bytes long. If the file contains more data, only the first
+    /// 32 bytes will be used. If the file does not contain at least 32 bytes, there will be an
+    /// error on startup. If this argument is not specified, a hard-coded key will be used;
+    /// this is not recommended.
     #[arg(long = "secret", short = 's')]
     pub secret_file: Option<PathBuf>,
 

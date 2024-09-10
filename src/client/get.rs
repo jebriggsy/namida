@@ -86,17 +86,25 @@ pub struct Parameter {
     #[arg(long = "blockdump")]
     pub blockdump: bool,
 
-    /// Specifies the path to a file from which the pre-shared key will be loaded. Only the first 32
-    /// bytes of the file will be used as the PSK. If not specified, a hard-coded key will be used;
+    /// Specifies the path to a file from which the pre-shared key will be loaded.
+    ///
+    /// The pre-shared key should be 32 bytes long. If the file contains more data, only the first
+    /// 32 bytes will be used. If the file does not contain at least 32 bytes, there will be an
+    /// error on startup. If this argument is not specified, a hard-coded key will be used;
     /// this is not recommended.
     #[arg(long = "secret")]
     pub secret_file: Option<PathBuf>,
 
-    /// The local filename under which the remote file should be saved. This will only work if
-    /// requesting exactly one file, otherwise the command will fail!
+    /// The local filename under which the remote file should be saved.
+    ///
+    /// This will only work if exactly one file is being requested, otherwise the command will fail!
+    /// If you need to download multiple files to specific local paths, it is recommended to invoke
+    /// namida multiple times.
     #[arg(long = "local")]
     pub local_filename: Option<PathBuf>,
 
+    /// Do not resume an existing transfer.
+    ///
     /// By default, namida will try to resume an existing transfer, skipping the transfer of blocks
     /// that are already present locally. If this behaviour is not desired, this option can be
     /// specified to always transfer everything.
